@@ -1,0 +1,30 @@
+# app/Dockerfileをbuildして起動したままにする
+
+version: "3"
+services:
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./app:/app
+      - ./sqlite:/sqlite
+      - ./log:/log
+    environment:
+      - TZ=Asia/Tokyo
+      - DB_PATH=/sqlite/database.db
+      - WEBHOOK_URL=${WEBHOOK_URL}
+    # stdin_open: true
+    # tty: true
+    command: python main.py
+  sqlite-web:
+    build:
+      context: ./sqlite-web
+      dockerfile: Dockerfile
+    ports:
+      - "8765:8080"
+    volumes:
+      - ./sqlite:/sqlite
+    command: sqlite_web -H 0.0.0.0 /sqlite/database.db
