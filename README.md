@@ -21,6 +21,7 @@ sudo systemctl enable newscollector.service
 ```
 
 で起動時に実行されるようにしている。
+※ newscollector.service は WorkingDirectory 等を適宜変更する必要がある。
 
 ## DB の確認
 
