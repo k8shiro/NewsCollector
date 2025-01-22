@@ -2,6 +2,7 @@ import urllib.request
 import json
 import os
 import logging
+import time
 
 # ロガーの取得
 logger = logging.getLogger(__name__)
@@ -26,6 +27,7 @@ def send_to_teams(articles):
         return
 
     body_items = []
+    line_num = 0
     for article in articles:
         body_item = [{
             "type": "TextBlock",
@@ -64,7 +66,7 @@ def send_to_teams(articles):
             "spacing": "Small"
         }, {
             "type": "TextBlock",
-            "text": "Collected on: 2024-08-29T07:19:42.881273+00:00",
+            "text": f"Collected on: {article['collect_date'].strftime('%Y-%m-%d %H:%M:%S %Z')}",
             "isSubtle": True,
             "wrap": True,
             "spacing": "Medium"
@@ -76,32 +78,38 @@ def send_to_teams(articles):
             "spacing": "Medium",
             "separator": True
         }]
+        line_num = len(body_item)
         body_items.extend(body_item)
         
 
-    message = {
-        "attachments": [
-            {
-                "contentType": "application/vnd.microsoft.card.adaptive",
-                "content": {
-                    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-                    "type": "AdaptiveCard",
-                    "version": "1.2",
-                    "body": body_items,
-                    "msteams": {
-                        "width": "Full"
+    chunk_size = line_num * 6 # 1itemにつきline_num行 * 6アイテム
+    post_groups = [body_items[i:i + chunk_size] for i in range(0, len(body_items), chunk_size)]
+
+    for items in post_groups:
+        message = {
+            "attachments": [
+                {
+                    "contentType": "application/vnd.microsoft.card.adaptive",
+                    "content": {
+                        "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                        "type": "AdaptiveCard",
+                        "version": "1.2",
+                        "body": items,
+                        "msteams": {
+                            "width": "Full"
+                        }
                     }
                 }
-            }
-        ]
-    }
-    headers = {
-        'Content-Type': 'application/json'
-    }
-    req = urllib.request.Request(WEBHOOK_URL, json.dumps(message).encode(), headers)
-    with urllib.request.urlopen(req) as res:
-        body = res.read()
-        logger.info(body)
+            ]
+        }
+        headers = {
+            'Content-Type': 'application/json'
+        }
+        req = urllib.request.Request(WEBHOOK_URL, json.dumps(message).encode(), headers)
+        with urllib.request.urlopen(req) as res:
+            body = res.read()
+            logger.info(body)
+        time.sleep(10)
 
 if __name__ == "__main__":
     from datetime import datetime

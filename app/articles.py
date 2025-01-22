@@ -1,5 +1,6 @@
 from article_database import ArticleDatabase
 from collectors.collector_aws_news_blog import CollectorAWSNewsBlog
+from collectors.collector_developersio import CollectorDevelopersIO
 import logging
 
 # ロガーの取得
@@ -21,9 +22,22 @@ def run_collectors():
     articles = []
 
     # AWS News Blogの記事を取得
-    collector_aws_news_blog = CollectorAWSNewsBlog()
-    articles_aws_news_blog = collector_aws_news_blog.collect()
-    articles.extend(articles_aws_news_blog)
+    try:
+        logger.info("AWS News Blogの記事を取得")
+        collector_aws_news_blog = CollectorAWSNewsBlog()
+        articles_aws_news_blog = collector_aws_news_blog.collect()
+        articles.extend(articles_aws_news_blog)
+    except Exception as e:
+        logger.error(f"AWS News Blogの記事取得中にエラーが発生しました: {e}")
+
+    # DevelopersIOの記事を取得
+    try:
+        logger.info("DevelopersIOの記事を取得")
+        collector_developersio = CollectorDevelopersIO()
+        articles_developersio = collector_developersio.collect()
+        articles.extend(articles_developersio)
+    except Exception as e:
+        logger.error(f"DevelopersIOの記事取得中にエラーが発生しました: {e}")
 
     return articles
 
