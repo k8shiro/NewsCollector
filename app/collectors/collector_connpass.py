@@ -51,7 +51,6 @@ class CollectorConnpass():
                 success_insert = db.insert_article(article)
                 if success_insert:
                     articles.append(article)
-                articles.append(article)
 
         # Connpassの新着イベントは一つのPostにまとめる
         description = "新着イベント \n" + "\n".join([f"- [{article['title']}]({article['link']})" for article in articles])
