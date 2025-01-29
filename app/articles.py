@@ -1,6 +1,7 @@
 from article_database import ArticleDatabase
 from collectors.collector_aws_news_blog import CollectorAWSNewsBlog
 from collectors.collector_developersio import CollectorDevelopersIO
+from collectors.collector_connpass import CollectorConnpass
 import logging
 
 # ロガーの取得
@@ -38,6 +39,15 @@ def run_collectors():
         articles.extend(articles_developersio)
     except Exception as e:
         logger.error(f"DevelopersIOの記事取得中にエラーが発生しました: {e}")
+
+    # Connpassのイベントを取得
+    try:
+        logger.info("Connpassのイベントを取得")
+        collector_connpass = CollectorConnpass()
+        articles_connpass = collector_connpass.collect()
+        articles.extend(articles_connpass)
+    except Exception as e:
+        logger.error(f"Connpassのイベント取得中にエラーが発生しました: {e}")
 
     return articles
 
